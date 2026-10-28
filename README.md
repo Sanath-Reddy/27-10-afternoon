@@ -1,109 +1,163 @@
-# React Hands-On Lab: Four Core Patterns
+# StudentDesk — Full Stack Application (React + Node.js + Express + MongoDB)
 
-A modern, interactive React learning platform and hands-on laboratory implementing the concepts described in `react hands-on.docx`.
-
----
-
-## 📚 Overview & Table of Contents
-
-| # | Lesson | Problem Solved | Key APIs |
-|---|--------|----------------|----------|
-| 1 | **[Lifting State Up](#lesson-1-lifting-state-up)** | Sibling components need to share & synchronize the same data | `useState`, `props` |
-| 2 | **[React Router](#lesson-2-react-router)** | Multi-page experience without full browser reloads | `BrowserRouter`, `Routes`, `Route`, `Link` |
-| 3 | **[useContext](#lesson-3-usecontext)** | Eliminating prop drilling across deeply nested trees | `createContext`, `useContext`, `Provider` |
-| 4 | **[useCallback](#lesson-4-usecallback)** | Preserving function reference stability to prevent unnecessary re-renders | `useCallback`, `React.memo` |
+A full-stack Student Management application built according to the **Backend Notes: Node.js, Express.js, MongoDB and Testing** curriculum.
 
 ---
 
-## 🚀 Running the Project
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:5174/` in your browser.
-
-3. Build production bundle:
-   ```bash
-   npm run build
-   ```
-
----
-
-## 📁 File Structure
+## 📁 Project Architecture
 
 ```text
-src/
-├── App.jsx                         # Master hands-on learning lab & tab switcher
-├── index.css                       # Premium Vanilla CSS design system
-├── ThemeContext.js                 # Standalone context module (prevents circular imports)
-├── components/
-│   ├── NameInput.jsx               # Lesson 1: Student name input (writer)
-│   ├── NameDisplay.jsx             # Lesson 1: Student name greeting (reader)
-│   ├── Toolbar.jsx                 # Lesson 3: Theme toggle consuming ThemeContext
-│   ├── Child.jsx                   # Lesson 4: Memoized button component
-│   └── CodeViewer.jsx              # Tabbed source code viewer with copy feature
-├── pages/
-│   ├── Home.jsx                    # Lesson 2: Home route view
-│   ├── About.jsx                   # Lesson 2: About route view
-│   └── Contact.jsx                 # Lesson 2: Contact route view
-├── lessons/
-│   ├── Lesson1LiftingState.jsx     # Interactive Lesson 1 demo & state visualizer
-│   ├── Lesson2ReactRouter.jsx      # Interactive Lesson 2 router sandbox & route table
-│   ├── Lesson3UseContext.jsx       # Interactive Lesson 3 theme playground & architecture tree
-│   ├── Lesson4UseCallback.jsx      # Interactive Lesson 4 console monitor & memo toggle
-│   ├── QuickReference.jsx          # Searchable pattern decision matrix & summary
-│   └── standalone/
-│       ├── Lesson1App.jsx          # Verbatim isolated App from Lesson 1
-│       ├── Lesson2App.jsx          # Verbatim isolated App from Lesson 2
-│       ├── Lesson3App.jsx          # Verbatim isolated App from Lesson 3
-│       └── Lesson4App.jsx          # Verbatim isolated App from Lesson 4
+react-demo/
+├── frontend/                       # React 18 + Vite Frontend App
+│   ├── index.html                  # HTML entry point with Inter typography
+│   ├── package.json                # Frontend dependencies & scripts
+│   ├── vite.config.js              # Vite bundler configuration
+│   └── src/
+│       ├── App.jsx                 # StudentDesk core client application
+│       ├── StudentForm.jsx         # Controlled student registration form
+│       ├── StudentTable.jsx        # Data table with avatars, badges & delete actions
+│       ├── index.css               # Modern glassmorphic dark-mode design system
+│       └── main.jsx                # React DOM entry point
+│
+├── backend/                        # Node.js + Express + MongoDB REST API
+│   ├── package.json                # Backend dependencies & test scripts
+│   ├── .env                        # Environment variables (MongoDB connection string)
+│   ├── .env.example                # Example configuration template
+│   ├── app.js                      # Express configuration (CORS, JSON parser, logger, routes)
+│   ├── index.js                    # Database connection & server runner (Port 5000)
+│   ├── departments.js              # Shared departments enum & validation helper
+│   ├── models/
+│   │   ├── Student.js              # Student Mongoose model (name, usn, email, department)
+│   │   └── Course.js               # Course Mongoose model (title, code, instructor, credits, dept)
+│   ├── controllers/
+│   │   ├── studentController.js    # CRUD handlers for students (?department filter)
+│   │   └── courseController.js     # CRUD handlers for courses (?department filter & ?sort=credits)
+│   ├── routes/
+│   │   ├── studentRoutes.js        # /api/students routing endpoints
+│   │   └── courseRoutes.js         # /api/courses routing endpoints
+│   └── tests/
+│       ├── jest/
+│       │   ├── students.test.js    # Supertest + Jest tests for Student API (mocked DB)
+│       │   └── courses.test.js     # Supertest + Jest tests for Course API (mocked DB)
+│       └── mocha/
+│           └── students.spec.js    # Mocha + Chai unit & integration tests
 ```
 
 ---
 
-## 📖 Pattern Deep Dives
+## 🚀 Getting Started
 
-### Lesson 1: Lifting State Up
-- **Goal:** Share data between siblings (`NameInput` and `NameDisplay`).
-- **Mechanism:** State lives in the common parent (`App.jsx`). Parent passes `name` and `setName` as props to `NameInput`, and passes `name` to `NameDisplay`.
-- **Teaching Point:** State flows downwards via props; events flow upwards via setter callbacks.
+### 1. Backend Setup & Running
 
-### Lesson 2: React Router
-- **Goal:** Multi-page client-side navigation without refreshing the document.
-- **Components:**
-  - `BrowserRouter`: Synchronizes UI with the browser history and URL.
-  - `Link`: Renders anchor links that intercept navigation and prevent full reloads.
-  - `Routes` & `Route`: Matches the current pathname to the appropriate component (`<Home />`, `<About />`, `<Contact />`).
+Navigate to the `backend` directory:
+```bash
+cd backend
+npm install
+```
 
-### Lesson 3: useContext
-- **Goal:** Provide global/shared state (e.g., dark/light theme) to nested components without passing props through every layer.
-- **Mechanism:**
-  - `createContext()` creates the context.
-  - `<ThemeContext.Provider value={{ dark, setDark }}>` broadcasts the value to the subtree.
-  - `useContext(ThemeContext)` in `<Toolbar />` reads and updates the value directly.
-- **Architectural Tip:** Context is placed in `src/ThemeContext.js` to avoid circular dependency between `App.jsx` and `Toolbar.jsx`.
+Configure your MongoDB connection in `backend/.env`:
+```env
+MONGO_URI=mongodb+srv://<USER>:<PASSWORD>@cluster0.xxxxx.mongodb.net/studentdesk?retryWrites=true&w=majority
+PORT=5000
+```
 
-### Lesson 4: useCallback
-- **Goal:** Keep function references stable between renders so memoized child components (`memo(Child)`) skip re-rendering when unrelated state changes.
-- **Mechanism:**
-  - Normal React re-renders recreate new function closures every time.
-  - `useCallback(fn, [])` returns the identical function reference across renders.
-  - `memo(Child)` performs shallow prop comparison and skips rendering because the `onClick` prop has not changed.
-- **Demo Tip:** The live app features an interactive "With useCallback" vs "Without useCallback" toggle with a live console activity monitor.
+Start the backend API server:
+```bash
+npm run dev
+# Or for standard production start:
+npm start
+```
+The server will run at `http://localhost:5000`.
 
 ---
 
-## 📊 Quick Reference Table
+### 2. Running Automated Tests
 
-| Concept | Use it when | Avoid it when |
+Run the full **Jest test suite** (12 tests covering Student & Course CRUD):
+```bash
+cd backend
+npm test
+```
+
+Run the **Mocha + Chai test suite** (5 tests):
+```bash
+cd backend
+npm run test:mocha
+```
+
+---
+
+### 3. Frontend Setup & Running
+
+Navigate to the `frontend` directory:
+```bash
+cd frontend
+npm install
+```
+
+Start the Vite development server:
+```bash
+npm run dev
+```
+Open `http://localhost:5173/` in your browser.
+
+Build for production:
+```bash
+npm run build
+```
+
+---
+
+## 🔌 API Reference
+
+### Student Endpoints (`/api/students`)
+
+| Method | Endpoint | Description |
 |---|---|---|
-| **Lifting state up** | Two or more components must share the same data | Only one component uses the data |
-| **React Router** | The app needs several pages or URLs | A single view with no navigation is enough |
-| **useContext** | Many nested levels need the same data (theme, user, language) | Data passes through only 1 or 2 levels, where props are simpler |
-| **useCallback** | A function goes to a memo child or a hook dependency array | The function is only used locally or the child isn't memoized |
+| `GET` | `/api/students` | Get all students (Supports query filter: `?department=CSE`) |
+| `GET` | `/api/students/:id` | Get student by MongoDB `_id` |
+| `POST` | `/api/students` | Add a new student |
+| `PUT` | `/api/students/:id` | Update an existing student |
+| `DELETE`| `/api/students/:id` | Delete a student by `_id` |
+
+#### Student Payload Example:
+```json
+{
+  "name": "Asha Sharma",
+  "usn": "1RV23CS001",
+  "email": "asha@example.com",
+  "department": "CSE"
+}
+```
+
+---
+
+### Course Endpoints (`/api/courses`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/courses` | Get all courses (Supports `?department=CSE` and `?sort=credits`) |
+| `GET` | `/api/courses/:id` | Get course by MongoDB `_id` |
+| `POST` | `/api/courses` | Create a new course |
+| `PUT` | `/api/courses/:id` | Update a course |
+| `DELETE`| `/api/courses/:id` | Delete a course |
+
+#### Course Payload Example:
+```json
+{
+  "title": "Data Structures & Algorithms",
+  "code": "CS201",
+  "instructor": "Dr. Sharma",
+  "credits": 4,
+  "department": "CSE"
+}
+```
+
+---
+
+## ✨ Features & Standards Implemented
+
+- **Schema Validation & Unique Indexing**: USN and Course Codes are enforced unique with Mongoose schema rules.
+- **Controlled Department Enums**: `["CSE", "ISE", "ECE", "ME"]`.
+- **Decoupled Architecture**: Separated Express `app.js` and server `index.js` enabling fast and reliable in-memory Supertest unit testing without hanging database connections.
+- **Glassmorphic UI**: High aesthetic visual design with responsive layouts, glowing badges, animated loading states, and instant error handling.
